@@ -1,0 +1,16 @@
+{
+    "name": "kedomingo/oauth",
+    "authors": [
+        {
+            "name": "Kyle Domingo",
+            "email": "kdomingo@wayfair.com"
+        }
+    ],
+    "require": {},
+
+    "autoload": {
+        "psr-4": {
+            "KOA2\\": "src/"
+        }
+    }
+}

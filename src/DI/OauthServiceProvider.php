@@ -12,17 +12,16 @@ use KOA2\Service\ClientAuthenticatorInterface;
 
 class OauthServiceProvider extends ServiceProvider
 {
-    /**
+    /**s
      * Register any application services.
      *
      * @return void
      */
     public function register()
     {
-      $this->app->bind(ClientAuthenticatorInterface::class, ClientAuthenticator::class);
-      $this->app->bind(ClientRepositoryInterface::class, ClientRepository::class);
-      $this->app->bind(ClientInterface::class,  Client::class);
-
+        $this->app->bind(ClientAuthenticatorInterface::class, ClientAuthenticator::class);
+        $this->app->bind(ClientRepositoryInterface::class, ClientRepository::class);
+        $this->app->bind(ClientInterface::class, Client::class);
     }
 
     /**

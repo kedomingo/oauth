@@ -8,13 +8,14 @@ namespace KOA2\Persistence;
 
 use KOA2\DTO\ClientDTO;
 
-interface ClientInterface {
-  /**
-   * @param int    $clientId
-   *
-   * @param string $secret
-   *
-   * @return ClientDTO|null
-   */
-  public function findClient(int $clientId, string $secret) : ?ClientDTO;
+interface ClientInterface
+{
+    /**
+     * @param int $clientId
+     *
+     * @param string $secret
+     *
+     * @return ClientDTO|null
+     */
+    public function findClient(int $clientId, string $secret): ?ClientDTO;
 }

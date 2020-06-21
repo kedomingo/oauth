@@ -7,24 +7,25 @@ use KOA2\Exceptions\DTOHydrationException;
 use KOA2\Schema\ClientSchema;
 use DB;
 
-final class Client implements ClientInterface {
+final class Client implements ClientInterface
+{
+    use HydratesDTOTrait;
 
-  use HydratesDTOTrait;
+    /**
+     * @param int $clientId
+     * @param string $secret
+     *
+     * @return ClientDTO
+     * @throws DTOHydrationException
+     */
+    public function findClient(int $clientId, string $secret): ?ClientDTO
+    {
 
-  /**
-   * @param int    $clientId
-   * @param string $secret
-   *
-   * @return ClientDTO
-   * @throws DTOHydrationException
-   */
-  public function findClient(int $clientId, string $secret) : ?ClientDTO {
+        $result = DB::table(ClientSchema::getTablename())
+            ->where(ClientSchema::clientId(), '=', $clientId)
+            ->where(ClientSchema::clientSecret(), '=', $secret)
+            ->first();
 
-    $result = DB::table(ClientSchema::getTablename())
-        ->where(ClientSchema::clientId(), '=', $clientId)
-        ->where(ClientSchema::clientSecret(), '=', $secret)
-        ->first();
-
-    return $result === null ? null : $this->hydrateOne(ClientDTO::class, $result);
-  }
+        return $result === null ? null : $this->hydrateOne(ClientDTO::class, $result);
+    }
 }

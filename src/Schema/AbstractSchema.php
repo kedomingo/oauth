@@ -5,10 +5,7 @@
 
 namespace KOA2\Schema;
 
-
 abstract class AbstractSchema
 {
-
     abstract public static function getTablename(): string;
-
 }

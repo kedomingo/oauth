@@ -2,23 +2,31 @@
 
 namespace KOA2\DTO;
 
-class ClientDTO {
+class ClientDTO
+{
+    /**
+     * @var int|string
+     */
+    private $clientId;
 
-  private $clientId;
-  private $clientSecret;
+    /**
+     * @var string
+     */
+    private $clientSecret;
 
-  /**
-   * @return mixed
-   */
-  public function getClientId() {
-    return $this->clientId;
-  }
+    /**
+     * @return int|string
+     */
+    public function getClientId()
+    {
+        return $this->clientId;
+    }
 
-  /**
-   * @return mixed
-   */
-  public function getClientSecret() {
-    return $this->clientSecret;
-  }
-
+    /**
+     * @return string
+     */
+    public function getClientSecret(): string
+    {
+        return $this->clientSecret;
+    }
 }

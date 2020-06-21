@@ -5,7 +5,7 @@
 
 namespace KOA2\Persistence;
 
-use KOA2\Exceptions\DTOHydrationException;
+use KOA2\Exception\DTOHydrationException;
 use ReflectionClass;
 use ReflectionException;
 

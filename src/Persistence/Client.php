@@ -3,7 +3,7 @@
 namespace KOA2\Persistence;
 
 use KOA2\DTO\ClientDTO;
-use KOA2\Exceptions\DTOHydrationException;
+use KOA2\Exception\DTOHydrationException;
 use KOA2\Schema\ClientSchema;
 use DB;
 

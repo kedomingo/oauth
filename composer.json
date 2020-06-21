@@ -6,7 +6,12 @@
             "email": "kdomingo@wayfair.com"
         }
     ],
-    "require": {},
+    "require-dev": {
+        "phpstan/phpstan": "^0.12.30"
+    },
+    "require": {
+        "firebase/php-jwt": "^5.2"
+    },
 
     "autoload": {
         "psr-4": {

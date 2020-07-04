@@ -20,6 +20,11 @@ class ClientDTO
     private $name;
 
     /**
+     * @var string
+     */
+    private $redirectUrl;
+
+    /**
      * @var bool
      */
     private $isConfidential;
@@ -62,5 +67,13 @@ class ClientDTO
     public function isConfidential(): bool
     {
         return $this->isConfidential;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRedirectUrl(): string
+    {
+        return $this->redirectUrl;
     }
 }

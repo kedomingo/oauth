@@ -2,14 +2,38 @@
 
 namespace KOA2\Repository;
 
+use KOA2\Model\User;
+use KOA2\Persistence\Contract\UserPersistence;
 use KOA2\Repository\Contract\UserRepositoryInterface;
+use KOA2\Service\Contract\PasswordHasherInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 
 class UserRepository implements UserRepositoryInterface
 {
     /**
-     * Get a user entity.
+     * @var UserPersistence
+     */
+    private $userPersistence;
+
+    /**
+     * @var PasswordHasherInterface
+     */
+    private $passwordHasher;
+
+    /**
+     * UserRepository constructor.
+     * @param UserPersistence         $userPersistence
+     * @param PasswordHasherInterface $passwordHasher
+     */
+    public function __construct(UserPersistence $userPersistence, PasswordHasherInterface $passwordHasher)
+    {
+        $this->userPersistence = $userPersistence;
+        $this->passwordHasher = $passwordHasher;
+    }
+
+    /**
+     * Get a user entity. This is only used by password grant which is only for first-party client apps
      *
      * @param string                $username
      * @param string                $password
@@ -24,6 +48,11 @@ class UserRepository implements UserRepositoryInterface
         $grantType,
         ClientEntityInterface $clientEntity
     ): ?UserEntityInterface {
-        // TODO: Implement getUserEntityByUserCredentials() method.
+        $userDTO = $this->userPersistence->findUserByUsername($username);
+        if ($userDTO === null || $this->passwordHasher->check($password, $userDTO->getPassword())) {
+            return null;
+        }
+
+        return new User($userDTO->getId());
     }
 }

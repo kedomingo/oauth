@@ -2,6 +2,8 @@
 
 namespace KOA2\Service;
 
+use KOA2\Service\Contract\VerifierCodeProviderInterface;
+
 class VerifierCodeProvider implements VerifierCodeProviderInterface
 {
     private const HASH_METHOD_PLAIN = 'plain';

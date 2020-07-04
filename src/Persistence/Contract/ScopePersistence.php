@@ -15,23 +15,14 @@ interface ScopePersistence
      *
      * @return ScopeDTO|null
      */
-    public function findScopeById($identifier): ?ScopeDTO;
+    public function findScopeByName($identifier): ?ScopeDTO;
 
     /**
-     * Given a client, grant type and optional user identifier validate the set of scopes requested are valid and optionally
-     * append additional scopes or remove requested scopes.
+     * Return information about a scope.
      *
-     * @param ScopeEntityInterface[] $scopes
-     * @param string                 $grantType
-     * @param ClientEntityInterface  $clientEntity
-     * @param null|string            $userIdentifier
+     * @param array $names
      *
-     * @return ScopeEntityInterface[]
+     * @return ScopeDTO[]
      */
-    public function finalizeScopes(
-        array $scopes,
-        $grantType,
-        ClientEntityInterface $clientEntity,
-        $userIdentifier = null
-    ): array;
+    public function findScopesByNames(array $names): array;
 }

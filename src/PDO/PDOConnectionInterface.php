@@ -4,10 +4,10 @@ namespace KOA2\PDO;
 
 use PDO;
 
-interface ConnectionInterface
+interface PDOConnectionInterface
 {
     /**
      * @return PDO|null
      */
-    public function getConnection(): ?PDO;
+    public function getPDO(): ?PDO;
 }

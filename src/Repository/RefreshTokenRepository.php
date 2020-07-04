@@ -2,6 +2,8 @@
 
 namespace KOA2\Repository;
 
+use KOA2\Model\RefreshToken;
+use KOA2\Persistence\Contract\RefreshTokenPersistence;
 use KOA2\Repository\Contract\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
@@ -9,13 +11,27 @@ use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationExcep
 class RefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
     /**
+     * @var RefreshTokenPersistence
+     */
+    private $refreshTokenPersistence;
+
+    /**
+     * RefreshTokenRepository constructor.
+     * @param RefreshTokenPersistence $refreshTokenPersistence
+     */
+    public function __construct(RefreshTokenPersistence $refreshTokenPersistence)
+    {
+        $this->refreshTokenPersistence = $refreshTokenPersistence;
+    }
+
+    /**
      * Creates a new refresh token
      *
      * @return RefreshTokenEntityInterface|null
      */
     public function getNewRefreshToken(): ?RefreshTokenEntityInterface
     {
-        // TODO: Implement getNewRefreshToken() method.
+        return new RefreshToken();
     }
 
     /**
@@ -28,7 +44,7 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
      */
     public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
-        // TODO: Implement persistNewRefreshToken() method.
+        $this->refreshTokenPersistence->persistNewRefreshToken($refreshTokenEntity);
     }
 
     /**
@@ -37,10 +53,10 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
      * @param string $tokenId
      *
      * @return void
-     */s
+     */
     public function revokeRefreshToken($tokenId): void
     {
-        // TODO: Implement revokeRefreshToken() method.
+        $this->refreshTokenPersistence->revokeRefreshToken($tokenId);
     }
 
     /**
@@ -52,6 +68,6 @@ class RefreshTokenRepository implements RefreshTokenRepositoryInterface
      */
     public function isRefreshTokenRevoked($tokenId): bool
     {
-        // TODO: Implement isRefreshTokenRevoked() method.
+        return $this->refreshTokenPersistence->isRefreshTokenRevoked($tokenId);
     }
 }

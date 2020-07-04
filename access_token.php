@@ -3,9 +3,7 @@
 require 'vendor/autoload.php';
 
 use GuzzleHttp\Psr7\Response;
-use KOA2\Model\User;
 use KOA2\Service\Contract\AccessTokenProviderInterface;
-use KOA2\Service\Contract\AuthorizerInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 
 foreach (explode("\n", file_get_contents('.env')) as $line) {
@@ -19,18 +17,16 @@ $containerBuilder = new \DI\ContainerBuilder();
 $containerBuilder->addDefinitions(__DIR__ . '/src/DI/Main_Config.php');
 $container = $containerBuilder->build();
 /**
- * @var AuthorizerInterface $authorizer
+ * @var AccessTokenProviderInterface $authorizer
  */
-$authorizer = $container->get(AuthorizerInterface::class);
+$authorizer = $container->get(AccessTokenProviderInterface::class);
 
-$authRequest = $authorizer->getAuthRequest();
-
-// After login is verified...
-$authRequest->setUser(new User(123));
-$authRequest->setAuthorizationApproved(true);
-$response = $authorizer->complete($authRequest);
-
-print_r($response->getHeader('Location'));
+try {
+    $response = $authorizer->getAccessToken();
+    echo $response->getBody();
+} catch (OAuthServerException $exception) {
+    echo $exception->generateHttpResponse(new Response())->getBody();
+}
 
 // Post to this with the following data
 // localhost:8080/access_token.php

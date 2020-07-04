@@ -6,9 +6,16 @@ use KOA2\Model\Client;
 use KOA2\Persistence\Contract\ClientPersistence;
 use KOA2\Repository\Contract\ClientRepositoryInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use Exception;
 
 class ClientRepository implements ClientRepositoryInterface
 {
+    private const GRANT_TYPE_AUTH_CODE = 'authorization_code';
+
+    private const GRANTS_WITH_PASSWORD_BYPASS = [
+        self::GRANT_TYPE_AUTH_CODE,
+    ];
+
     /**
      * @var ClientPersistence
      */
@@ -34,11 +41,10 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $clientDTO = $this->clientPersistence->getClient($clientIdentifier);
 
-        // TODO
         return $clientDTO === null ? null : new Client(
             $clientDTO->getClientId(),
             $clientDTO->getName(),
-            '',
+            $clientDTO->getRedirectUrl(),
             $clientDTO->isConfidential()
         );
     }
@@ -51,13 +57,19 @@ class ClientRepository implements ClientRepositoryInterface
      * @param null|string $grantType        The type of grant the client is using (if sent)
      *
      * @return bool
+     * @throws Exception
      */
     public function validateClient($clientIdentifier, $clientSecret, $grantType): bool
     {
-        return $this->clientPersistence->validateClient(
-            $clientIdentifier,
-            $clientSecret,
-            $grantType
-        );
+        if (empty($clientSecret) && !in_array($grantType, self::GRANTS_WITH_PASSWORD_BYPASS, true)) {
+            throw new Exception('Client secret not provided for grant type ' . $grantType);
+        }
+
+        $clientDTO = $this->clientPersistence->getClient($clientIdentifier);
+
+        return $clientDTO !== null && (
+                $clientSecret === $clientDTO->getClientSecret()
+                || in_array($grantType, self::GRANTS_WITH_PASSWORD_BYPASS, true)
+            );
     }
 }

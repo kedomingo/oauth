@@ -2,7 +2,9 @@
 
 namespace KOA2\Repository;
 
+use KOA2\DTO\ScopeDTO;
 use KOA2\Model\Scope;
+use KOA2\Persistence\Contract\ScopePersistence;
 use KOA2\Repository\Contract\ScopeRepositoryInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -10,16 +12,37 @@ use League\OAuth2\Server\Entities\ScopeEntityInterface;
 class ScopeRepository implements ScopeRepositoryInterface
 {
     /**
+     * @var ScopePersistence
+     */
+    private $scopePersistence;
+
+    /**
+     * ScopeRepository constructor.
+     * @param ScopePersistence $scopePersistence
+     */
+    public function __construct(ScopePersistence $scopePersistence)
+    {
+        $this->scopePersistence = $scopePersistence;
+    }
+
+    /**
      * Return information about a scope.
      *
-     * @param string $identifier The scope identifier
-     *
+     * @param $identifierOrScope
      * @return ScopeEntityInterface|null
      */
-    public function getScopeEntityByIdentifier($identifier): ?ScopeEntityInterface
+    public function getScopeEntityByIdentifier($identifierOrScope): ?ScopeEntityInterface
     {
-        // TODO
-        return new Scope(random_int(1, 100), $identifier);
+        $scopeDTO = ScopeDTO::fromJson($identifierOrScope);
+
+        if ($scopeDTO === null) {
+            $scopeDTO = $this->scopePersistence->findScopeByName($identifierOrScope);
+        }
+        if ($scopeDTO === null) {
+            return null;
+        }
+
+        return new Scope($scopeDTO->getId(), $scopeDTO->getName());
     }
 
     /**
@@ -39,8 +62,7 @@ class ScopeRepository implements ScopeRepositoryInterface
         ClientEntityInterface $clientEntity,
         $userIdentifier = null
     ): array {
-        // TODO
-        $scope = new Scope(1, 'test scope');
-        return [$scope];
+        // TODO: the enhancement specified in the doc is not implemented here
+        return $scopes;
     }
 }

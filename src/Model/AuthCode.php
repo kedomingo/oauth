@@ -16,9 +16,14 @@ use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationExcep
 class AuthCode implements AuthCodeEntityInterface
 {
     /**
-     * @var string auth code
+     * @var string bigint
      */
     private $id;
+
+    /**
+     * @var string auth code
+     */
+    private $authCode;
 
     /**
      * @var string bigint
@@ -45,31 +50,6 @@ class AuthCode implements AuthCodeEntityInterface
      */
     private $expiry;
 
-//    /**
-//     * AuthCode constructor.
-//     * @param string                 $id
-//     * @param string                 $userId
-//     * @param string                 $redirectUri
-//     * @param ClientEntityInterface  $client
-//     * @param ScopeEntityInterface[] $scopes
-//     * @param DateTimeImmutable      $expiry
-//     */
-//    public function __construct(
-//        string $id,
-//        string $userId,
-//        string $redirectUri,
-//        ClientEntityInterface $client,
-//        array $scopes,
-//        DateTimeImmutable $expiry
-//    ) {
-//        $this->id = $id;
-//        $this->userId = $userId;
-//        $this->redirectUri = $redirectUri;
-//        $this->client = $client;
-//        $this->scopes = $scopes;
-//        $this->expiry = $expiry;
-//    }
-
     /**
      * @return string|null
      */
@@ -95,19 +75,19 @@ class AuthCode implements AuthCodeEntityInterface
      */
     public function getIdentifier(): string
     {
-        return $this->id;
+        return $this->authCode;
     }
 
     /**
      * Set the token's identifier.
      *
-     * @param mixed $authCodeId
+     * @param mixed $authCode
      *
      * @return void
      */
-    public function setIdentifier($authCodeId): void
+    public function setIdentifier($authCode): void
     {
-        $this->id = $authCodeId;
+        $this->authCode = $authCode;
     }
 
     /**
@@ -178,7 +158,6 @@ class AuthCode implements AuthCodeEntityInterface
 
     /**
      * Associate a scope with the token.
-     *
      * @param ScopeEntityInterface $scope
      *
      * @return void
@@ -195,7 +174,7 @@ class AuthCode implements AuthCodeEntityInterface
      */
     public function getScopes(): array
     {
-        return $this->scopes;
+        return array_values($this->scopes);
     }
 
     /**

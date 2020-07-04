@@ -5,7 +5,7 @@ namespace KOA2\PDO;
 use PDO;
 use PDOException;
 
-final class Connection implements ConnectionInterface
+final class PDOConnection implements PDOConnectionInterface
 {
     /**
      * @var PDO
@@ -30,7 +30,7 @@ final class Connection implements ConnectionInterface
     /**
      * @return PDO|null
      */
-    public function getConnection(): ?PDO
+    public function getPDO(): ?PDO
     {
         if (static::$handleSingleton !== null) {
             return static::$handleSingleton;

@@ -3,8 +3,8 @@
 namespace KOA2\Persistence\DB;
 
 use Exception;
-use KOA2\Model\AuthCode as AuthCodeModel;
-use KOA2\PDO\Connection;
+use KOA2\DTO\AuthCodeDTO;
+use KOA2\PDO\PDOConnection;
 use KOA2\Persistence\Contract\AuthCodePersistence;
 use League\OAuth2\Server\Entities\AuthCodeEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
@@ -14,8 +14,11 @@ use PDOException;
 final class AuthCode implements AuthCodePersistence
 {
     use QueriesPDO;
+    use Revocable;
 
     private const DUPLICATE_AUTH_CODE_PATTERN = '/Integrity constraint violation.*Duplicate entry/i';
+    private const AUTH_CODES_TABLE = 'oauth_auth_codes';
+    private const AUTH_CODE_COLUMN = 'auth_code';
 
     /**
      * @var PDO
@@ -24,11 +27,11 @@ final class AuthCode implements AuthCodePersistence
 
     /**
      * Client constructor.
-     * @param Connection $connection
+     * @param PDOConnection $connection
      */
-    public function __construct(Connection $connection)
+    public function __construct(PDOConnection $connection)
     {
-        $this->pdo = $connection->getConnection();
+        $this->pdo = $connection->getPDO();
     }
 
     /**
@@ -42,17 +45,24 @@ final class AuthCode implements AuthCodePersistence
      */
     public function persistNewAuthCode(AuthCodeEntityInterface $authCode): void
     {
+        $existing = $this->getAuthcodeByCode($authCode->getIdentifier());
+        if ($existing !== null) {
+            throw UniqueTokenIdentifierConstraintViolationException::create();
+        }
+
         $sql = '
             INSERT INTO oauth_auth_codes (
-                   id,
+                   auth_code,
                    user_id,
                    client_id,
-                   scopes
+                   scopes,
+                   expires_at
                    ) VALUES (
-                     :id,
+                     :authCode,
                      :userId,
                      :clientId,
-                     :scopes 
+                     :scopes,
+                     :expiry
                    )
          ';
 
@@ -61,17 +71,34 @@ final class AuthCode implements AuthCodePersistence
                 $this->pdo,
                 $sql,
                 [
-                    'id'       => $authCode->getIdentifier(),
+                    'authCode' => $authCode->getIdentifier(),
                     'userId'   => $authCode->getUserIdentifier(),
                     'clientId' => $authCode->getClientAsString(),
                     'scopes'   => $authCode->getScopesAsString(),
+                    'expiry'   => $authCode->getExpiryDateTime()->format('Y-m-d H:i:s'),
                 ]
             );
         } catch (PDOException $e) {
-            if (preg_match(self::DUPLICATE_AUTH_CODE_PATTERN, $e->getMessage())) {
-                throw UniqueTokenIdentifierConstraintViolationException::create();
-            }
+            // TODO logging
+            throw $e;
         }
+    }
+
+    /**
+     * @param string $code
+     * @return AuthCodeDTO|null
+     * @throws Exception
+     */
+    public function getAuthcodeByCode(string $code): ?AuthCodeDTO
+    {
+        $sql = '
+            SELECT id
+              FROM oauth_auth_codes
+             WHERE auth_code = :authCode
+        ';
+        $statement = $this->query($this->pdo, $sql, ['authCode' => $code]);
+
+        return $statement->fetchObject(AuthCodeDTO::class) ?: null;
     }
 
     /**
@@ -84,20 +111,7 @@ final class AuthCode implements AuthCodePersistence
      */
     public function revokeAuthCode($codeId): void
     {
-        $sql = '
-            UPDATE oauth_auth_codes
-               SET revoked = :revoked
-             WHERE id = :id
-         ';
-
-        $this->query(
-            $this->pdo,
-            $sql,
-            [
-                'revoked' => 1,
-                'id'      => $codeId
-            ]
-        );
+        $this->revoke($this->pdo, self::AUTH_CODES_TABLE, $codeId, self::AUTH_CODE_COLUMN);
     }
 
     /**
@@ -110,14 +124,6 @@ final class AuthCode implements AuthCodePersistence
      */
     public function isAuthCodeRevoked($codeId): bool
     {
-        $sql = '
-            SELECT revoked
-              FROM oauth_auth_codes
-             WHERE id = :id
-         ';
-
-        $statement = $this->query($this->pdo, $sql, ['id' => $codeId]);
-
-        return (bool)$statement->fetchColumn();
+        return $this->isRevoked($this->pdo, self::AUTH_CODES_TABLE, $codeId);
     }
 }

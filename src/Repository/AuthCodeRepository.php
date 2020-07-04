@@ -68,6 +68,6 @@ class AuthCodeRepository implements AuthCodeRepositoryInterface
      */
     public function isAuthCodeRevoked($codeId): bool
     {
-        $this->authCodePersistence->isAuthCodeRevoked($codeId);
+        return $this->authCodePersistence->isAuthCodeRevoked($codeId);
     }
 }

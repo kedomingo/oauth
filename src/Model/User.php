@@ -16,11 +16,26 @@ use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationExcep
 class User implements UserEntityInterface
 {
     /**
+     * @var int
+     */
+    private $id;
+
+    /**
+     * User constructor.
+     * @param int $id
+     */
+    public function __construct(int $id)
+    {
+        $this->id = $id;
+    }
+
+    /**
      * Return the user's identifier.
      *
      * @return mixed
      */
     public function getIdentifier()
     {
+        return $this->id;
     }
 }

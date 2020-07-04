@@ -21,7 +21,7 @@ class AccessToken implements AccessTokenEntityInterface
     private $expiry;
 
     /**
-     * @var string bigint
+     * @var int bigint
      */
     private $userId;
 
@@ -44,12 +44,12 @@ class AccessToken implements AccessTokenEntityInterface
      * AccessToken constructor.
      * @param ClientEntityInterface  $client
      * @param ScopeEntityInterface[] $scopes
-     * @param string                 $userId bigint
+     * @param int                    $userId
      */
     public function __construct(
         ClientEntityInterface $client,
         array $scopes,
-        string $userId = null
+        int $userId = null
     ) {
         $this->client = $client;
         $this->scopes = $scopes;

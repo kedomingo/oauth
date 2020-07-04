@@ -4,7 +4,7 @@ namespace KOA2\Persistence\DB;
 
 use Exception;
 use KOA2\DTO\UserDTO;
-use KOA2\PDO\Connection;
+use KOA2\PDO\PDOConnection;
 use KOA2\Persistence\Contract\UserPersistence;
 use KOA2\Service\Contract\PasswordHasherInterface;
 use PDO;
@@ -19,21 +19,12 @@ final class User implements UserPersistence
     private $pdo;
 
     /**
-     * @var PasswordHasherInterface
-     */
-    private $passwordHasher;
-
-    /**
      * Client constructor.
-     * @param Connection              $connection
-     * @param PasswordHasherInterface $passwordHasher
+     * @param PDOConnection $connection
      */
-    public function __construct(
-        Connection $connection,
-        PasswordHasherInterface $passwordHasher
-    ) {
-        $this->pdo = $connection->getConnection();
-        $this->passwordHasher = $passwordHasher;
+    public function __construct(PDOConnection $connection)
+    {
+        $this->pdo = $connection->getPDO();
     }
 
     /**
@@ -44,9 +35,8 @@ final class User implements UserPersistence
      * @return UserDTO|null
      * @throws Exception
      */
-    public function findUserByUsernamePassword(
-        $username,
-        $password
+    public function findUserByUsername(
+        $username
     ): ?UserDTO {
         $sql = '
             SELECT id,
@@ -55,14 +45,8 @@ final class User implements UserPersistence
               FROM users 
              WHERE username = :username
          ';
+        $statement = $this->query($this->pdo, $sql, ['username' => $username]);
 
-        $statement = $this->pdo->prepare($sql);
-        $statement->bindValue(':username', $username);
-        if (!$statement->execute()) {
-            throw new Exception('PDO execution failed');
-        }
-        $user = $statement->fetchObject(UserDTO::class);
-
-        return $user !== null && $this->passwordHasher->check($password, $user->getPassword()) ? $user : null;
+        return $statement->fetchObject(UserDTO::class) ?: null;
     }
 }

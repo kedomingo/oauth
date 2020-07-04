@@ -4,16 +4,30 @@ namespace KOA2\Model;
 
 use DateTimeImmutable;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
-use KOA2\Repository\Contract\RefreshTokenRepositoryInterface;
-use League\OAuth2\Server\CryptKey;
-
-use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
-use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 
 class RefreshToken implements RefreshTokenEntityInterface
 {
+    /**
+     * @var string
+     */
+    private $id;
+
+    /**
+     * @var AccessTokenEntityInterface
+     */
+    private $accessToken;
+
+    /**
+     * @var bool
+     */
+    private $isRevoked;
+
+    /**
+     * @var DateTimeImmutable
+     */
+    private $expiresAt;
+
     /**
      * Get the token's identifier.
      *
@@ -21,6 +35,7 @@ class RefreshToken implements RefreshTokenEntityInterface
      */
     public function getIdentifier()
     {
+        return $this->id;
     }
 
     /**
@@ -30,6 +45,7 @@ class RefreshToken implements RefreshTokenEntityInterface
      */
     public function setIdentifier($identifier)
     {
+        $this->id = $identifier;
     }
 
     /**
@@ -39,6 +55,7 @@ class RefreshToken implements RefreshTokenEntityInterface
      */
     public function getExpiryDateTime()
     {
+        return $this->expiresAt;
     }
 
     /**
@@ -48,6 +65,7 @@ class RefreshToken implements RefreshTokenEntityInterface
      */
     public function setExpiryDateTime(DateTimeImmutable $dateTime)
     {
+        $this->expiresAt = $dateTime;
     }
 
     /**
@@ -57,6 +75,7 @@ class RefreshToken implements RefreshTokenEntityInterface
      */
     public function setAccessToken(AccessTokenEntityInterface $accessToken)
     {
+        $this->accessToken = $accessToken;
     }
 
     /**
@@ -66,5 +85,6 @@ class RefreshToken implements RefreshTokenEntityInterface
      */
     public function getAccessToken()
     {
+        return $this->accessToken;
     }
 }

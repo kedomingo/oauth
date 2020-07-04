@@ -9,13 +9,6 @@ use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationExcep
 interface RefreshTokenPersistence
 {
     /**
-     * Creates a new refresh token
-     *
-     * @return RefreshTokenDTO|null
-     */
-    public function getNewRefreshToken(): ?RefreshTokenDTO;
-
-    /**
      * Create a new refresh token_name.
      *
      * @param RefreshTokenEntityInterface $refreshTokenEntity

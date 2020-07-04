@@ -2,10 +2,12 @@
 
 namespace KOA2\DI;
 
-use KOA2\PDO\Connection;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\ServerRequest;
+use KOA2\PDO\PDOConnection;
 use KOA2\PDO\ConnectionConfigurationProvider;
 use KOA2\PDO\ConnectionConfigurationProviderInterface;
-use KOA2\PDO\ConnectionInterface;
+use KOA2\PDO\PDOConnectionInterface;
 use KOA2\Persistence\Contract\AccessTokenPersistence as AccessTokenPersistenceInterface;
 use KOA2\Persistence\Contract\AuthCodePersistence as AuthCodePersistenceInterface;
 use KOA2\Persistence\Contract\ClientPersistence as ClientPersistenceInterface;
@@ -30,15 +32,24 @@ use KOA2\Repository\Contract\UserRepositoryInterface;
 use KOA2\Repository\RefreshTokenRepository;
 use KOA2\Repository\ScopeRepository;
 use KOA2\Repository\UserRepository;
+use KOA2\Service\AccessTokenProvider;
+use KOA2\Service\Authorizer;
 use KOA2\Service\BcryptPasswordHasher;
+use KOA2\Service\Contract\AccessTokenProviderInterface;
+use KOA2\Service\Contract\AuthorizerInterface;
+use KOA2\Service\Contract\OauthServerProviderInterface;
 use KOA2\Service\Contract\PasswordHasherInterface;
+use KOA2\Service\OauthServerProvider;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
+use function DI\autowire;
 use function DI\get;
 
 return [
     // DB
     ConnectionConfigurationProviderInterface::class => get(ConnectionConfigurationProvider::class),
-    ConnectionInterface::class                      => get(Connection::class),
+    PDOConnectionInterface::class                   => get(PDOConnection::class),
     // Hasher
     PasswordHasherInterface::class                  => get(BcryptPasswordHasher::class),
 
@@ -51,10 +62,21 @@ return [
     UserRepositoryInterface::class                  => get(UserRepository::class),
 
     // Persistence
-    AccessTokenPersistenceInterface::class           => get(AccessTokenPersistence::class),
-    AuthCodePersistenceInterface::class              => get(AuthCodePersistence::class),
-    ClientPersistenceInterface::class                => get(ClientPersistence::class),
-    RefreshTokenPersistenceInterface::class          => get(RefreshTokenPersistence::class),
-    ScopePersistenceInterface::class                 => get(ScopePersistence::class),
-    UserPersistenceInterface::class                  => get(UserPersistence::class),
+    AccessTokenPersistenceInterface::class          => get(AccessTokenPersistence::class),
+    AuthCodePersistenceInterface::class             => get(AuthCodePersistence::class),
+    ClientPersistenceInterface::class               => get(ClientPersistence::class),
+    RefreshTokenPersistenceInterface::class         => get(RefreshTokenPersistence::class),
+    ScopePersistenceInterface::class                => get(ScopePersistence::class),
+    UserPersistenceInterface::class                 => get(UserPersistence::class),
+
+    // Http
+    ServerRequestInterface::class                   => function () {
+        return ServerRequest::fromGlobals();
+    },
+    ResponseInterface::class                        => get(Response::class),
+
+    // Services
+    OauthServerProviderInterface::class             => get(OauthServerProvider::class),
+    AccessTokenProviderInterface::class             => get(AccessTokenProvider::class),
+    AuthorizerInterface::class                      => get(Authorizer::class),
 ];

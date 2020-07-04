@@ -4,12 +4,8 @@ namespace KOA2\Persistence\DB;
 
 use Exception;
 use KOA2\DTO\ScopeDTO;
-use KOA2\DTO\UserDTO;
-use KOA2\PDO\Connection;
+use KOA2\PDO\PDOConnection;
 use KOA2\Persistence\Contract\ScopePersistence;
-use KOA2\Persistence\Contract\UserPersistence;
-use League\OAuth2\Server\Entities\ClientEntityInterface;
-use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use PDO;
 
 final class Scope implements ScopePersistence
@@ -23,53 +19,55 @@ final class Scope implements ScopePersistence
 
     /**
      * Client constructor.
-     * @param Connection $connection
+     * @param PDOConnection $connection
      */
-    public function __construct(Connection $connection)
+    public function __construct(PDOConnection $connection)
     {
-        $this->pdo = $connection->getConnection();
+        $this->pdo = $connection->getPDO();
     }
 
     /**
      * Return information about a scope.
      *
-     * @param $scopeId
+     * @param $scopeName
      * @return ScopeDTO|null
      * @throws Exception
      */
-    public function findScopeById($scopeId): ?ScopeDTO
+    public function findScopeByName($scopeName): ?ScopeDTO
     {
         $sql = '
             SELECT id,
                    name 
               FROM oauth_scopes 
-             WHERE id = :scopeId
+             WHERE name = :scopeName
          ';
-        $statement = $this->pdo->prepare($sql);
-        $statement->bindValue(':scopeId', $scopeId);
-        if (!$statement->execute()) {
-            throw new Exception('PDO execution failed');
-        }
+        $statement = $this->query($this->pdo, $sql, ['scopeName' => $scopeName]);
 
-        return $statement->fetchObject(ScopeDTO::class);
+        return $statement->fetchObject(ScopeDTO::class) ?: null;
     }
 
     /**
-     * Given a client, grant type and optional user identifier validate the set of scopes requested are valid and optionally
-     * append additional scopes or remove requested scopes.
+     * Return information about a scope.
      *
-     * @param ScopeEntityInterface[] $scopes
-     * @param string                 $grantType
-     * @param ClientEntityInterface  $clientEntity
-     * @param null|string            $userIdentifier
+     * @param array $names
      *
-     * @return ScopeEntityInterface[]
+     * @return ScopeDTO[]
+     * @throws Exception
      */
-    public function finalizeScopes(
-        array $scopes,
-        $grantType,
-        ClientEntityInterface $clientEntity,
-        $userIdentifier = null
-    ): array {
+    public function findScopesByNames(array $names): array
+    {
+        if (empty($names)) {
+            return [];
+        }
+
+        $sql = '
+            SELECT id,
+                   name 
+              FROM oauth_scopes 
+             WHERE name IN (:names)
+         ';
+        $statement = $this->query($this->pdo, $sql, ['names' => $names]);
+
+        return $statement->fetchAll(PDO::FETCH_CLASS, ScopeDTO::class);
     }
 }

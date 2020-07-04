@@ -12,12 +12,10 @@ interface UserPersistence
      * Get a user entity.
      *
      * @param string $username
-     * @param string $password
      *
      * @return UserDTO|null
      */
-    public function findUserByUsernamePassword(
-        $username,
-        $password
+    public function findUserByUsername(
+        $username
     ): ?UserDTO;
 }

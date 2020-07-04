@@ -2,63 +2,81 @@
 
 namespace KOA2\Repository;
 
-use KOA2\Model\Token;
-use KOA2\Persistence\AccessTokenInterface;
+use KOA2\Model\AccessToken;
+use KOA2\Persistence\Contract\AccessTokenPersistence;
+use KOA2\Repository\Contract\AccessTokenRepositoryInterface;
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
     /**
-     * @var AccessTokenInterface
+     * @var AccessTokenPersistence
      */
-    private $persistence;
+    private $accessTokenPersistence;
 
     /**
-     * ClientRepository constructor.
+     * AccessTokenRepository constructor.
+     * @param AccessTokenPersistence $accessTokenPersistence
+     */
+    public function __construct(AccessTokenPersistence $accessTokenPersistence)
+    {
+        $this->accessTokenPersistence = $accessTokenPersistence;
+    }
+
+    /**
+     * Create a new access token
      *
-     * @param AccessTokenInterface $persistence
+     * @param ClientEntityInterface  $client
+     * @param ScopeEntityInterface[] $scopes
+     * @param string                 $userId
+     *
+     * @return AccessTokenEntityInterface
      */
-    public function __construct(AccessTokenInterface $persistence)
-    {
-        $this->persistence = $persistence;
+    public function getNewToken(
+        ClientEntityInterface $client,
+        array $scopes,
+        $userId = null
+    ): AccessTokenEntityInterface {
+        return new AccessToken($client, $scopes, $userId);
     }
 
     /**
-     * @param string $token
-     * @return Token|null
+     * Persists a new access token to permanent storage.
+     *
+     * @param AccessTokenEntityInterface $accessTokenEntity
+     *
+     * @return void
+     * @throws UniqueTokenIdentifierConstraintViolationException
      */
-    public function findToken(string $token): ?Token
+    public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
-        $tokenDTO = $this->persistence->findToken($token);
-
-        if ($tokenDTO === null) {
-            return null;
-        }
-
-        return new Token(
-            $tokenDTO->getId(),
-            null,
-            $tokenDTO->getUserId(),
-            $tokenDTO->getClientId(),
-            $tokenDTO->getScopes(),
-            $tokenDTO->getExpiresAt(),
-            null
-        );
+        $this->accessTokenPersistence->persistNewAccessToken($accessTokenEntity);
     }
 
     /**
-     * @param Token $token
+     * Revoke an access token.
+     *
+     * @param string $tokenId
+     *
+     * @return void
      */
-    public function issueToken(Token $token): void
+    public function revokeAccessToken($tokenId): void
     {
-        $this->persistence->persist(
-            $token->getId(),
-            $token->getRefreshToken(),
-            $token->getUserId(),
-            $token->getClientId(),
-            $token->getScopes(),
-            $token->getExpiresAt(),
-            $token->getRefreshExpiresAt(),
-        );
+        $this->accessTokenPersistence->revokeAccessToken($tokenId);
     }
 
+    /**
+     * Check if the access token has been revoked.
+     *
+     * @param string $tokenId
+     *
+     * @return bool Return true if this token has been revoked
+     */
+    public function isAccessTokenRevoked($tokenId): bool
+    {
+        return $this->accessTokenPersistence->isAccessTokenRevoked($tokenId);
+    }
 }

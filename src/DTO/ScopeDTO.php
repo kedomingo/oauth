@@ -29,22 +29,4 @@ class ScopeDTO
     {
         return $this->name;
     }
-
-    /**
-     * @param string $json
-     * @return static|null
-     */
-    public static function fromJson(string $json): ?self
-    {
-        $instance = null;
-        $decoded = json_decode($json, true);
-
-        if (isset($decoded['id'], $decoded['name'])) {
-            $instance = new self();
-            $instance->id = $decoded['id'];
-            $instance->name = $decoded['name'];
-        }
-
-        return $instance;
-    }
 }

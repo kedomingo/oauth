@@ -50,11 +50,6 @@ class Scope implements ScopeEntityInterface
      */
     public function jsonSerialize(): string
     {
-        return json_encode(
-            [
-                'id' => $this->id,
-                'name' => $this->name
-            ]
-        );
+        return $this->name;
     }
 }

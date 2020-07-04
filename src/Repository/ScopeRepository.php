@@ -33,11 +33,8 @@ class ScopeRepository implements ScopeRepositoryInterface
      */
     public function getScopeEntityByIdentifier($identifierOrScope): ?ScopeEntityInterface
     {
-        $scopeDTO = ScopeDTO::fromJson($identifierOrScope);
+        $scopeDTO = $this->scopePersistence->findScopeByName($identifierOrScope);
 
-        if ($scopeDTO === null) {
-            $scopeDTO = $this->scopePersistence->findScopeByName($identifierOrScope);
-        }
         if ($scopeDTO === null) {
             return null;
         }

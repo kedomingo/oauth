@@ -24,7 +24,7 @@ class UserDTO
      */
     public function getId(): int
     {
-        return $this->id;
+        return (int)$this->id;
     }
 
     /**

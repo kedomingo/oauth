@@ -88,8 +88,7 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
      *
      * @return AccessTokenDTO|null
      */
-    public function findByIdentifier(string $tokenId): ?AccessTokenDTO
-    {
+    public function findByIdentifier(string $tokenId): ?AccessTokenDTO {
         return $this->accessTokenPersistence->findByIdentifier($tokenId);
     }
 }

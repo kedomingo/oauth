@@ -112,21 +112,16 @@ final class AccessToken implements AccessTokenPersistence
     /**
      * @param string $id
      *
-     * @return AccessTokenDTO
-     * @throws Exception
+     * @return AccessTokenDTO|null
      */
-    public function findByIdentifier(string $id): AccessTokenDTO
-    {
-        $sql = sprintf(
-            '
+    public function findByIdentifier(string $id): ?AccessTokenDTO {
+        $sql = '
            SELECT *
-             FROM %s
+             FROM oauth_access_tokens
             WHERE id=:id
               AND revoked=0
               AND expires_at > CURRENT_TIMESTAMP
-             ',
-            self::ACCESS_TOKEN_TABLE
-        );
+             ';
         $statement = $this->query($this->pdo, $sql, ['id' => $id]);
 
         return $statement->fetchObject(AccessTokenDTO::class) ?: null;

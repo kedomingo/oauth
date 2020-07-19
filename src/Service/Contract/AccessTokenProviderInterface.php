@@ -19,5 +19,5 @@ interface AccessTokenProviderInterface
      *
      * @return AccessToken|null
      */
-    public function findAccessToken(string $accessToken): ?AccessToken;
+    public function findAccessToken(string $accessToken) : ?AccessToken;
 }

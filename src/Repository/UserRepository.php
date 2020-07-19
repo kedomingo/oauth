@@ -49,7 +49,7 @@ class UserRepository implements UserRepositoryInterface
         ClientEntityInterface $clientEntity
     ): ?UserEntityInterface {
         $userDTO = $this->userPersistence->findUserByUsername($username);
-        if ($userDTO === null || $this->passwordHasher->check($password, $userDTO->getPassword())) {
+        if ($userDTO === null || !$this->passwordHasher->check($password, $userDTO->getPassword())) {
             return null;
         }
 

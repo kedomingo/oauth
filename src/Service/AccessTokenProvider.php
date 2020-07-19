@@ -77,8 +77,7 @@ class AccessTokenProvider implements AccessTokenProviderInterface
      *
      * @return AccessToken|null
      */
-    public function findAccessToken(string $accessToken): ?AccessToken
-    {
+    public function findAccessToken(string $accessToken) : ?AccessToken {
         return $this->accessTokenFactory->fromToken($accessToken);
     }
 }

@@ -9,11 +9,13 @@ use KOA2\Repository\Contract\AuthCodeRepositoryInterface;
 use KOA2\Repository\Contract\ClientRepositoryInterface;
 use KOA2\Repository\Contract\RefreshTokenRepositoryInterface;
 use KOA2\Repository\Contract\ScopeRepositoryInterface;
+use KOA2\Repository\Contract\UserRepositoryInterface;
 use KOA2\Service\Contract\OauthServerProviderInterface;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Grant\ClientCredentialsGrant;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
+use League\OAuth2\Server\Grant\PasswordGrant;
 
 class OauthServerProvider implements OauthServerProviderInterface
 {
@@ -50,6 +52,11 @@ class OauthServerProvider implements OauthServerProviderInterface
     private $refreshTokenRepository;
 
     /**
+     * @var UserRepositoryInterface
+     */
+    private $userRepository;
+
+    /**
      * @var AuthorizationServer
      */
     private static $serverSingleton;
@@ -68,13 +75,15 @@ class OauthServerProvider implements OauthServerProviderInterface
         ScopeRepositoryInterface $scopeRepository,
         AccessTokenRepositoryInterface $accessTokenRepository,
         AuthCodeRepositoryInterface $authCodeRepository,
-        RefreshTokenRepositoryInterface $refreshTokenRepository
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        UserRepositoryInterface $userRepository
     ) {
         $this->clientRepository = $clientRepository;
         $this->accessTokenRepository = $accessTokenRepository;
         $this->scopeRepository = $scopeRepository;
         $this->authCodeRepository = $authCodeRepository;
         $this->refreshTokenRepository = $refreshTokenRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -102,6 +111,7 @@ class OauthServerProvider implements OauthServerProviderInterface
         $this->enableAuthCodeGrant();
         $this->enableClientCredentialsGrant();
         $this->enableRefreshTokenGrant();
+        $this->enablePasswordGrant();
 
         return static::$serverSingleton;
     }
@@ -161,5 +171,24 @@ class OauthServerProvider implements OauthServerProviderInterface
         $refreshTokenGrant->setRefreshTokenTTL($refreshTokenExpiry);
 
         static::$serverSingleton->enableGrantType($refreshTokenGrant, $tokenValidityInterval);
+    }
+
+    /**
+     * @param DateInterval|null $tokenValidityInterval
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function enablePasswordGrant(DateInterval $tokenValidityInterval = null): void
+    {
+        if ($tokenValidityInterval === null) {
+            $tokenValidityInterval = new DateInterval(self::DEFAULT_TOKEN_EXPIRY_INTERVAL_SPEC);
+        }
+
+        $refreshTokenExpiry = new DateInterval(self::DEFAULT_REFRESH_TOKEN_EXPIRY_INTERVAL_SPEC);
+        $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
+        $passwordGrant->setRefreshTokenTTL($refreshTokenExpiry);
+
+        static::$serverSingleton->enableGrantType($passwordGrant, $tokenValidityInterval);
     }
 }

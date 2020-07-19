@@ -14,4 +14,6 @@ interface OauthServerProviderInterface
     public function enableAuthCodeGrant(DateInterval $tokenValidityInterval = null): void;
 
     public function enableRefreshTokenGrant(DateInterval $tokenValidityInterval = null): void;
+
+    public function enablePasswordGrant(DateInterval $tokenValidityInterval = null): void;
 }

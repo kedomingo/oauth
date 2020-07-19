@@ -40,7 +40,7 @@ interface AccessTokenPersistence
     /**
      * @param string $id
      *
-     * @return AccessTokenDTO
+     * @return AccessTokenDTO|null
      */
-    public function findByIdentifier(string $id): AccessTokenDTO;
+    public function findByIdentifier(string $id): ?AccessTokenDTO;
 }

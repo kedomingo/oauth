@@ -38,20 +38,24 @@ final class AccessTokenFactory
         ScopeRepositoryInterface $scopeRepository
     ) {
         $this->accessTokenRepository = $accessTokenRepository;
-        $this->clientRepository      = $clientRepository;
-        $this->scopeRepository       = $scopeRepository;
+        $this->clientRepository = $clientRepository;
+        $this->scopeRepository = $scopeRepository;
     }
 
     /**
      * @param string $token
-     * @return AccessToken
+     * @return AccessToken|null
      * @throws \Exception
      */
-    public function fromToken(string $token)
+    public function fromToken(string $token): ?AccessToken
     {
         $accessTokenDto = $this->accessTokenRepository->findByIdentifier($token);
-        $clientEntity   = $this->clientRepository->getClientEntity($accessTokenDto->getClientId());
-        $scopeEntities  = array_map(
+        if ($accessTokenDto === null) {
+            return null;
+        }
+
+        $clientEntity = $this->clientRepository->getClientEntity($accessTokenDto->getClientId());
+        $scopeEntities = array_map(
             function (string $scope): ?ScopeEntityInterface {
                 return $this->scopeRepository->getScopeEntityByIdentifier($scope);
             },

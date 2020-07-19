@@ -2,6 +2,7 @@
 
 namespace KOA2\Persistence\DB;
 
+use KOA2\DTO\AccessTokenDTO;
 use KOA2\Model\AccessToken as AccessTokenModel;
 use KOA2\PDO\PDOConnection;
 use KOA2\Persistence\Contract\AccessTokenPersistence;
@@ -106,5 +107,28 @@ final class AccessToken implements AccessTokenPersistence
     public function isAccessTokenRevoked($tokenId): bool
     {
         return $this->isRevoked($this->pdo, self::ACCESS_TOKEN_TABLE, $tokenId);
+    }
+
+    /**
+     * @param string $id
+     *
+     * @return AccessTokenDTO
+     * @throws Exception
+     */
+    public function findByIdentifier(string $id): AccessTokenDTO
+    {
+        $sql = sprintf(
+            '
+           SELECT *
+             FROM %s
+            WHERE id=:id
+              AND revoked=0
+              AND expires_at > CURRENT_TIMESTAMP
+             ',
+            self::ACCESS_TOKEN_TABLE
+        );
+        $statement = $this->query($this->pdo, $sql, ['id' => $id]);
+
+        return $statement->fetchObject(AccessTokenDTO::class) ?: null;
     }
 }

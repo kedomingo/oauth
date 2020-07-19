@@ -2,6 +2,7 @@
 
 namespace KOA2\Persistence\Contract;
 
+use KOA2\DTO\AccessTokenDTO;
 use KOA2\Model\AccessToken;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
@@ -35,4 +36,11 @@ interface AccessTokenPersistence
      * @return bool Return true if this token has been revoked
      */
     public function isAccessTokenRevoked($tokenId): bool;
+
+    /**
+     * @param string $id
+     *
+     * @return AccessTokenDTO
+     */
+    public function findByIdentifier(string $id): AccessTokenDTO;
 }

@@ -2,6 +2,7 @@
 
 namespace KOA2\Repository;
 
+use KOA2\DTO\AccessTokenDTO;
 use KOA2\Model\AccessToken;
 use KOA2\Persistence\Contract\AccessTokenPersistence;
 use KOA2\Repository\Contract\AccessTokenRepositoryInterface;
@@ -78,5 +79,17 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
     public function isAccessTokenRevoked($tokenId): bool
     {
         return $this->accessTokenPersistence->isAccessTokenRevoked($tokenId);
+    }
+
+    /**
+     * Get an AccessToken model from an access token identifier
+     *
+     * @param $id
+     *
+     * @return AccessTokenDTO|null
+     */
+    public function findByIdentifier(string $tokenId): ?AccessTokenDTO
+    {
+        return $this->accessTokenPersistence->findByIdentifier($tokenId);
     }
 }

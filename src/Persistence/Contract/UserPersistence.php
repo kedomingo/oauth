@@ -15,7 +15,7 @@ interface UserPersistence
      *
      * @return UserDTO|null
      */
-    public function findUserByUsername(
+    public function findUserByUsernameOrEmail(
         $username
     ): ?UserDTO;
 }

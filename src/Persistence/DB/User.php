@@ -35,7 +35,7 @@ final class User implements UserPersistence
      * @return UserDTO|null
      * @throws Exception
      */
-    public function findUserByUsername(
+    public function findUserByUsernameOrEmail(
         $username
     ): ?UserDTO {
         $sql = '
@@ -44,8 +44,9 @@ final class User implements UserPersistence
                    password
               FROM users 
              WHERE username = :username
+                OR email = :email
          ';
-        $statement = $this->query($this->pdo, $sql, ['username' => $username]);
+        $statement = $this->query($this->pdo, $sql, ['username' => $username, 'email' => $username]);
 
         return $statement->fetchObject(UserDTO::class) ?: null;
     }

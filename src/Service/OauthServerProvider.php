@@ -192,3 +192,4 @@ class OauthServerProvider implements OauthServerProviderInterface
         static::$serverSingleton->enableGrantType($passwordGrant, $tokenValidityInterval);
     }
 }
+

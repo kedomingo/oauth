@@ -43,8 +43,8 @@ final class User implements UserPersistence
                    username,
                    password
               FROM users 
-             WHERE username = :username
-                OR email = :email
+             WHERE (username = :username OR email = :email)
+               AND is_active = 1
          ';
         $statement = $this->query($this->pdo, $sql, ['username' => $username, 'email' => $username]);
 
